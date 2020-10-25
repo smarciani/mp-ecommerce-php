@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html class="supports-animation supports-columns svg no-touch no-ie no-oldie no-ios supports-backdrop-filter as-mouseuser" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+
     <meta name="viewport" content="width=1024">
     <title>Tienda e-commerce</title>
 
@@ -10,7 +10,10 @@
     <script
     src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous">
+    </script>
+
+    <script src="https://www.mercadopago.com/v2/security.js" view="home"></script>
 
     <link rel="stylesheet" href="./assets/category-landing.css" media="screen, print">
 
@@ -44,7 +47,7 @@
 <body class="as-theme-light-heroimage">
 
     <div class="stack">
-        
+
         <div class="as-search-wrapper" role="main">
             <div class="as-navtuck-wrapper">
                 <div class="as-l-fullwidth  as-navtuck" data-events="event52">
@@ -94,7 +97,7 @@
                                         <img src="./assets/wireless-headphones" class="ir ir item-image as-producttile-image  " style="max-width: 70%;max-height: 70%;"alt="" width="445" height="445">
                                     </div>
                                     <div class="images mini-gallery gal5 ">
-                                    
+
 
                                         <div class="as-isdesktop with-paddlenav with-paddlenav-onhover">
                                             <div class="clearfix image-list xs-no-js as-util-relatedlink relatedlink" data-relatedlink="6|Powerbeats3 Wireless Earphones - Neighborhood Collection - Brick Red|MPXP2">
@@ -102,13 +105,12 @@
                                                     <div class=""></div>
                                                     <img src="./assets/003.jpg" class="ir ir item-image as-producttile-image" alt="" width="445" height="445" style="content:-webkit-image-set(url(<?php echo $_POST['img'] ?>) 2x);">
                                                 </div>
-                                                
+
                                             </div>
 
-                                            
+
                                         </div>
 
-                                        
 
                                     </div>
 
@@ -127,10 +129,85 @@
                                             <?php echo $_POST['price'] ?>
                                         </h3>
                                         <h3 >
-                                            <?php echo "$" . $_POST['unit'] ?> ---
+                                            <?php echo "$" . $_POST['unit'] ?>
                                         </h3>
                                     </div>
-                                    <button type="submit" class="mercadopago-button" formmethod="post">Pagar</button>
+                                    <?php
+                                    require __DIR__ .  '/vendor/autoload.php';
+
+                                    //MercadoPago\SDK::setAccessToken('APP_USR-6317427424180639-042414-47e969706991d3a442922b0702a0da44-469485398');
+
+                                    MercadoPago\SDK::setAccessToken('TEST-6793000265677685-091814-57dea7c2d98041d012930579497c4ede-648082120');
+
+
+
+                                    // Crea un objeto de preferencia
+                                    $preference = new MercadoPago\Preference();
+
+                                    $payer = new MercadoPago\Payer();
+                                    $payer->name = "Lalo";
+                                    $payer->surname = "Landa";
+                                    $payer->email = "comercioelectronico@pizzuti.com.ar";
+                                    $payer->date_created = "2018-06-02T12:58:41.425-04:00";
+                                    $payer->phone = array(
+                                      "area_code" => "11",
+                                      "number" => "22223333"
+                                    );
+
+                                    $payer->identification = array(
+                                      "type" => "DNI",
+                                      "number" => "12345678"
+                                    );
+
+                                    $payer->address = array(
+                                      "street_name" => "False",
+                                      "street_number" => 123,
+                                      "zip_code" => "1111"
+                                    );
+
+                                    $item = new MercadoPago\Item();
+                                    $item->id = "1234";
+                                    $item->title = $_POST['title'];
+                                    $item->description = "Dispositivo móvil de Tienda e-commerce";
+                                    $item->picture_url = "http://www.nabu.com.ar/mercadopago/assets/003.jpg";
+                                    $item->quantity = $_POST['unit'];
+                                    $item->currency_id = "ARS";
+                                    $item->unit_price = $_POST['price'];
+
+                                    $preference->items = array($item);
+                                    $preference->notification_url = "";
+
+                                    $preference->payment_methods = array(
+                                        "excluded_payment_methods" => array(
+                                            array("id" => "amex")
+                                        ),
+                                        "excluded_payment_types" => array(
+                                            array("id" => "atm")
+                                        ),
+                                        "installments" => 6
+                                    );
+
+                                    $preference->external_reference = "comercioelectronico@pizzuti.com.ar";
+                                    $preference->back_urls = array(
+                                        "success" => "http://www.nabu.com.ar/mercadopago/success.php",
+                                        "failure" => "http://www.nabu.com.ar/mercadopago/failure.php",
+                                        "pending" => "http://www.nabu.com.ar/mercadopago/pending.php"
+                                    );
+
+                                    $preference->auto_return = "approved";
+                                    $preference->payer = $payer;
+                                    $preference->save();
+                                    // ...
+
+                                    ?>
+                                    <form action="" method="POST">
+                                        <script
+                                            src="https://www.mercadopago.com.ar/integrations/v1/web-payment-checkout.js"
+                                            data-button-label="Pagar la compra"
+                                            data-preference-id="<?php echo $preference->id; ?>">
+                                        </script>
+                                    </form>
+
                                 </div>
                             </div>
                         </div>
